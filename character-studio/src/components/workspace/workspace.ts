@@ -4,6 +4,7 @@ import * as css from './workspace.scss';
 import * as wasm from "character-chan";
 import {drawPointService, templateService} from "../../app/app";
 import {TPoint, TPointCoords} from "../../app/draw-point-service.spec";
+import {TTemplateInfo} from "../../app/template-service";
 
 export class Workspace extends SlimFit {
     static get observedAttributes(): string[] { return []; }
@@ -15,13 +16,12 @@ export class Workspace extends SlimFit {
         this.addEventListener('error', console.error);
 
         drawPointService.registerChangeListener(groups => {
-            const pointArr = groups.get(drawPointService.activeGroup)?.points.toArray();
-            this.drawCharacter(pointArr);
-            this.drawPoints(pointArr);
+            this.drawCharacter();
+            this.drawPoints();
         });
 
-        templateService.registerChangeListener(data => {
-            this.updateTemplate(data);
+        templateService.registerChangeListener(info => {
+            this.updateTemplate(info);
         });
     }
 
@@ -72,7 +72,7 @@ export class Workspace extends SlimFit {
     }
 
     public clearCharacter() {
-        this.drawCharacter([]);
+        this.drawCharacter();
     }
 
     public clearPoints() {
@@ -85,29 +85,31 @@ export class Workspace extends SlimFit {
         }
     }
 
-    public drawCharacter(points: TPoint[] = Array.from(drawPointService.getPoints())) {
+    public drawCharacter() {
         if (!this.ctx) throw new Error('Canvas has not been initialized, yet!');
 
         const canvasEle = this.ctx.canvas;
         if (!canvasEle) throw new Error('Internal canvas element missing!');
 
-        if (points.length < 2) return;
-
-        const linePoints = wasm.test(points.map(p => p.coords));
-
         this.ctx.clearRect(0, 0, canvasEle.width, canvasEle.height);
-        this.ctx.beginPath();
-        this.ctx.moveTo(linePoints[0].x, linePoints[0].y);
+        for (const group of drawPointService.getGroups()) {
+            if (group.points.length < 2) continue;
 
-        for (let i = 1; i < linePoints.length; i++) {
-            this.ctx.lineTo(linePoints[i].x, linePoints[i].y);
+            const linePoints = wasm.test(group.points.toArray().map(p => p.coords));
+
+            this.ctx.beginPath();
+            this.ctx.moveTo(linePoints[0].x, linePoints[0].y);
+
+            for (let i = 1; i < linePoints.length; i++) {
+                this.ctx.lineTo(linePoints[i].x, linePoints[i].y);
+            }
+
+            this.ctx.strokeStyle = group.color;
+            this.ctx.stroke();
         }
-
-        this.ctx.strokeStyle = '#ff0000';
-        this.ctx.stroke();
     }
 
-    public drawPoints(points: TPoint[] = Array.from(drawPointService.getPoints())) {
+    public drawPoints(points?: TPoint[]) {
         if (!this.ctx) throw new Error('Canvas has not been initialized, yet!');
 
         const bodyEle = this.queryInternalElement<HTMLDivElement>('#body');
@@ -115,6 +117,13 @@ export class Workspace extends SlimFit {
 
         const canvasEle = this.ctx.canvas;
         if (!canvasEle) throw new Error('Internal canvas element missing!');
+
+        const group = drawPointService.getGroup(drawPointService.activeGroup);
+        if (!group) throw new Error('Active group does not exist');
+
+        if (!points) {
+            points = group.points.toArray();
+        }
 
         this.clearPoints();
         for (const point of points) {
@@ -125,6 +134,7 @@ export class Workspace extends SlimFit {
             pointEle.draggable = true;
             pointEle.style.left = point.coords[0] + 'px';
             pointEle.style.top = point.coords[1] + 'px';
+            pointEle.style.backgroundColor = group.color;
             bodyEle.appendChild(pointEle);
 
             pointEle.addEventListener('dragstart', eve => {
@@ -151,11 +161,15 @@ export class Workspace extends SlimFit {
         this.drawCharacter();
     }
 
-    protected updateTemplate(data: string = '') {
+    protected updateTemplate(info: TTemplateInfo) {
         const templateEle = this.queryInternalElement<HTMLImageElement>('#template');
         if (!templateEle) throw new Error('Internal img-template element missing!');
 
-        templateEle.src = data;
+        const factor = 100 * info.scaleFactor + '%';
+
+        templateEle.src = info.data ?? '';
+        templateEle.style.maxWidth = factor;
+        templateEle.style.maxHeight = factor;
     }
 }
 

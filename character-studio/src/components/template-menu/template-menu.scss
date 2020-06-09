@@ -1,0 +1,12 @@
+#body {
+  display: flex;
+  flex-direction: column;
+
+  label {
+    margin-bottom: 1rem;
+  }
+
+  label, input {
+    display: block;
+  }
+}

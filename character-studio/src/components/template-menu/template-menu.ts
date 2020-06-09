@@ -10,7 +10,7 @@ export class TemplateMenu extends SlimFit {
         this.draw(template(), css);
 
         {
-            const inputELe = this.queryInternalElement<HTMLInputElement>('#template-file');
+            const inputELe = this.$<HTMLInputElement>('#template-file');
             if (!inputELe) throw new Error('Internal input element missing!');
 
             inputELe.addEventListener('change', () => {
@@ -23,6 +23,15 @@ export class TemplateMenu extends SlimFit {
                 };
 
                 reader.readAsDataURL(inputELe.files[0]);
+            });
+        }
+
+        {
+            const scaleEle = this.$<HTMLInputElement>('input#scale');
+            if (!scaleEle) throw new Error('Internal input element missing!');
+
+            scaleEle.addEventListener('change', () => {
+                templateService.setScaleFactor(parseFloat(scaleEle.value));
             });
         }
     }

@@ -23,6 +23,21 @@ export class DrawPointService implements IDrawPointService {
         return this._activeGroup;
     }
 
+    set activeGroup(group: string) {
+        if (!Array.from(this.groups.keys()).includes(group)) throw new Error(`Group "${group}" does not exist!`);
+        this._activeGroup = group;
+        this.updateListeners();
+    }
+
+    get groupCount(): number {
+        return this.groups.size;
+    }
+
+    addGroup(group: TGroupData) {
+        this.groups.set(group.name, group);
+        this.updateListeners();
+    }
+
     addPoint(coords: TPointCoords): TPoint {
         const point: TPoint = {
             coords,
@@ -44,10 +59,6 @@ export class DrawPointService implements IDrawPointService {
 
     getGroupNames(): IterableIterator<string> {
         return this.groups.keys();
-    }
-
-    getPoints(): IterableIterator<TPoint> {
-        return this.points.values();
     }
 
     registerChangeListener(listener: TChangeListener) {

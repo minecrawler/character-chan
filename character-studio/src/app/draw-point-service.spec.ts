@@ -14,7 +14,10 @@ export type TPointCoords = [number, number];
 export type TPointGroups = Map<string, TGroupData>;
 
 export interface IDrawPointService {
-    readonly activeGroup: string
+    activeGroup: string
+    readonly groupCount: number
+
+    addGroup(group: TGroupData): void
 
     /**
      * Add a point
@@ -27,11 +30,6 @@ export interface IDrawPointService {
     getGroups(): IterableIterator<TGroupData>
 
     getGroupNames(): IterableIterator<string>
-
-    /**
-     * Get all points
-     */
-    getPoints(): IterableIterator<TPoint>
 
     registerChangeListener(listener: TChangeListener): void
 
