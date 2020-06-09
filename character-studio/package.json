@@ -1,0 +1,32 @@
+{
+  "name": "a-live",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "app-radio": "github:NSSTC/app-radio#master",
+    "pixi.js": "^5.2.1",
+    "regenerator-runtime": "^0.13.5",
+    "sim-ecs": "github:NSSTC/sim-ecs#master"
+  },
+  "devDependencies": {
+    "arg": "^4.1.2",
+    "copy-webpack-plugin": "^5.1.1",
+    "extract-loader": "^3.1.0",
+    "file-loader": "^5.0.2",
+    "fs-extra": "^8.1.0",
+    "html-loader": "^0.5.5",
+    "progress-bar-webpack-plugin": "^1.12.1",
+    "ts-loader": "^6.2.2",
+    "tslib": "latest",
+    "typescript": "latest",
+    "webpack": "^4.42.1"
+  },
+  "parkedDependencies": {
+    "gl-matrix": "^3.2.1"
+  },
+  "scripts": {
+    "build": "node make.js -p",
+    "build-dev": "node make.js",
+    "dev": "node make.js -w"
+  }
+}

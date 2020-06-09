@@ -1,0 +1,8 @@
+@use '../../style/global/colors';
+
+#body {
+  background-color: colors.$menu-background;
+  color: colors.$menu-font;
+  height: 100%;
+  width: 100%;
+}
