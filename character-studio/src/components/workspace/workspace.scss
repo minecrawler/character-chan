@@ -1,8 +1,31 @@
 @use '../../style/global/colors';
 
+.point {
+  background-color: red;
+  box-sizing: border-box;
+  cursor: grab;
+  height: .5rem;
+  position: absolute;
+  transform: translateX(-50%) translateY(-50%);
+  width: .5rem;
+  z-index: 100;
+}
+
 #body {
-  background-color: colors.$menu-background;
-  color: colors.$menu-font;
+  box-sizing: border-box;
   height: 100%;
+  padding: 1px;
+  position: relative;
   width: 100%;
+
+  >canvas {
+    height: 100%;
+    position: absolute;
+    width: 100%;
+    z-index: 0;
+  }
+}
+
+#template {
+  position: absolute;
 }

@@ -2,7 +2,14 @@
 
 #body {
   background-color: colors.$menu-background;
+  border: colors.$menu-border;
+  box-sizing: border-box;
   color: colors.$menu-font;
   height: 100%;
+  overflow: auto;
   width: 100%;
+
+  >ul {
+    padding-left: 4ch;
+  }
 }

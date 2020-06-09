@@ -1,0 +1,8 @@
+div#body
+    | Groups
+    ul.groups
+        each group in groups
+            if group.name === activeGroup
+                li.active(style="color:" + group.color)= group.name
+            else
+                li(style="color:" + group.color)= group.name

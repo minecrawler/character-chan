@@ -4,6 +4,7 @@ const fs = require('fs-extra');
 const path = require('path');
 const CopyPlugin = require('copy-webpack-plugin');
 const ProgressBarPlugin = require('progress-bar-webpack-plugin');
+const WasmPackPlugin = require("@wasm-tool/wasm-pack-plugin");
 
 // arg handling
 const args = arg({
@@ -54,11 +55,11 @@ const pixiModule = path.join(__dirname, '/node_modules/pixi.js/');
                 filename: 'bundle.js'
             },
             resolve: {
-                alias: {
-                    'pixi': pixiModule,
-                },
-                extensions: ['.ts', '.tsx', '.js'],
+                extensions: ['.js', '.ts', '.tsx'],
                 modules: ['node_modules'],
+            },
+            externals: {
+                './bundle.js': 'bundle.js',
             },
             module: {
                 rules: [
@@ -70,12 +71,67 @@ const pixiModule = path.join(__dirname, '/node_modules/pixi.js/');
                             "html-loader",
                         ]
                     },
+                    {// index file
+                        test: /index\.pug$/i,
+                        include: path.resolve(__dirname, 'src/index.pug'),
+                        use: [
+                            "file-loader?name=[name].html",
+                            "extract-loader",
+                            "raw-loader",
+                            "pug-html-loader"
+                        ],
+                    },
+                    {// pug templates
+                        test: /((?!index).+)\.(pug|jade)$/i,
+                        exclude: path.resolve(__dirname, 'src', 'index.pug'),
+                        use: [
+                            "pug-loader"
+                        ],
+                    },
                     {// typescript
                         test: /\.tsx?$/i,
                         loader: 'ts-loader',
                         options: {
                             allowTsInNodeModules: true,
-                        }
+                        },
+                    },
+                    {// main scss
+                        test: /\.s[ac]ss$/i,
+                        include: path.resolve(__dirname, 'src', 'main.scss'),
+                        use: [
+                            'style-loader',
+                            {
+                                loader: 'css-loader',
+                                options: {
+                                    sourceMap: !prod,
+                                }
+                            },
+                            {
+                                loader: 'sass-loader',
+                                options: {
+                                    sourceMap: !prod,
+                                }
+                            }
+                        ],
+                    },
+                    {// component scss
+                        test: /\.s[ac]ss$/i,
+                        exclude: path.resolve(__dirname, 'src', 'main.scss'),
+                        use: [
+                            'to-string-loader',
+                            {
+                                loader: 'css-loader',
+                                options: {
+                                    sourceMap: !prod,
+                                }
+                            },
+                            {
+                                loader: 'sass-loader',
+                                options: {
+                                    sourceMap: !prod,
+                                }
+                            }
+                        ],
                     },
                 ],
             },
@@ -84,6 +140,13 @@ const pixiModule = path.join(__dirname, '/node_modules/pixi.js/');
                     { from: 'assets', to: './assets' },
                 ]),
                 new ProgressBarPlugin(),
+                new webpack.IgnorePlugin(
+                    /bundle\.js$/i
+                ),
+                /*new WasmPackPlugin({
+                    crateDirectory: path.resolve(__dirname, "crate"),
+                    args: "--log-level warn",
+                }),*/
             ],
         });
 

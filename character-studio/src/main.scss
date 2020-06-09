@@ -1,0 +1,27 @@
+@use "style/global/colors";
+@use "style/global/dimensions";
+@use "style/reset";
+
+body, html {
+  background-color: colors.$background;
+  height: 100vh;
+  overflow: hidden;
+  width: 100vw;
+}
+
+cs-main-menu {
+  align-self: stretch;
+  grid-area: menu;
+  justify-self: stretch;
+}
+
+#app {
+  display: grid;
+  grid-template-areas:
+    "menu menu"
+    "toolbar workspace";
+  grid-template-columns: [left] dimensions.$toolbar-width [h-separator] auto [right];
+  grid-template-rows: [top] dimensions.$menu-height [v-separator] auto [bottom];
+  height: 100%;
+  width: 100%;
+}

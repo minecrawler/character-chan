@@ -1,0 +1,5 @@
+@use "util";
+
+$menu-height: 4rem;
+
+$toolbar-width: 100% - 100% / util.$phi;

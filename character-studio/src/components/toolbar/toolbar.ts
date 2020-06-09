@@ -1,8 +1,8 @@
 import {SlimFit} from 'slim-fit';
-import * as template from './main-menu.pug';
-import * as css from './main-menu.scss';
+import * as template from './toolbar.pug';
+import * as css from './toolbar.scss';
 
-export class MainMenu extends SlimFit {
+export class Toolbar extends SlimFit {
     static get observedAttributes(): string[] { return []; }
 
     protected render(): void {
@@ -10,4 +10,4 @@ export class MainMenu extends SlimFit {
     }
 }
 
-MainMenu.registerTag('cs-main-menu');
+Toolbar.registerTag('cs-toolbar');
