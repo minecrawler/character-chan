@@ -1,23 +1,15 @@
-import LinkedList from "ts-linked-list";
-
-export type TChangeListener = (groups: TPointGroups)=>void;
-export type TGroupData = {
-    color: string
-    name: string
-    points: LinkedList<TPoint>
-};
+export type TPointListener1 = (point: TPoint) => void;
+export type TPointListener2 = (oldPoint: TPoint, newPoint: TPoint) => void;
 export type TPoint = {
     coords: TPointCoords,
     id: string
 };
 export type TPointCoords = [number, number];
-export type TPointGroups = Map<string, TGroupData>;
 
 export interface IDrawPointService {
-    activeGroup: string
-    readonly groupCount: number
+    addListener4ChangePoint(handler: TPointListener1): void
 
-    addGroup(group: TGroupData): void
+    addListener4NewPoint(handler: TPointListener1): void
 
     /**
      * Add a point
@@ -25,13 +17,7 @@ export interface IDrawPointService {
      */
     addPoint(coords: TPointCoords): TPoint
 
-    getGroup(name: string): TGroupData | undefined
-
-    getGroups(): IterableIterator<TGroupData>
-
-    getGroupNames(): IterableIterator<string>
-
-    registerChangeListener(listener: TChangeListener): void
+    getPoints(group: string): IterableIterator<TPoint>
 
     updatePoint(point: TPoint): void
 }

@@ -1,9 +1,10 @@
 import {SlimFit} from 'slim-fit';
 import * as template from './group-menu.pug';
 import * as css from './group-menu.scss';
-import {drawPointService} from "../../app/app";
+import {groupService} from "../../app/app";
 import { TinyColor } from '@ctrl/tinycolor';
-import LinkedList from "ts-linked-list";
+import {GroupItem} from "../group-item/group-item";
+import { TGroupData } from '../../app/group-service';
 
 export class GroupMenu extends SlimFit {
     static get observedAttributes(): string[] { return []; }
@@ -12,33 +13,44 @@ export class GroupMenu extends SlimFit {
 
     constructor() {
         super();
-        drawPointService.registerChangeListener(groups => {
-            if (groups.size != this.lastGroupCount) {
-                this.dirty = true;
-                this.tryRender();
-            }
+        this.addEventListener('error', console.error);
+
+        groupService.addListener4NewGroup(group => {
+            const groupListEle = this.$('.groups');
+            if (!groupListEle) throw new Error('Missing internal group list element!');
+
+            const liEle = document.createElement('li');
+            const groupItemEle = document.createElement('cs-group-item') as GroupItem;
+
+            groupItemEle.name = group.name;
+            groupListEle.appendChild(liEle);
+            liEle.appendChild(groupItemEle);
+
+            groupItemEle.addEventListener('click', () => {
+                groupService.activeGroup = groupService.getGroup(group.name) as TGroupData;
+            });
         });
     }
 
     protected render(): void {
         this.draw(template({
-            activeGroup: drawPointService.activeGroup,
-            groups: Array.from(drawPointService.getGroups()),
+            groups: Array.from(groupService.getGroups()),
         }), css);
 
         this.$<HTMLButtonElement>('button#add')?.addEventListener('click', () => {
-            const name = 'default_' + drawPointService.groupCount;
-            drawPointService.addGroup({
-                color: new TinyColor('red').spin(drawPointService.groupCount * 75).toHexString(),
+            const name = 'default_' + groupService.groupCount;
+            const newGroup: TGroupData = {
+                color: new TinyColor('red').spin(groupService.groupCount * 75).toHexString(),
                 name,
-                points: new LinkedList(),
-            });
-            drawPointService.activeGroup = name;
+            };
+
+            groupService.addGroup(newGroup);
+            groupService.activeGroup = newGroup;
         });
 
-        this.$$<HTMLLIElement>('ul.groups > li').forEach(groupEle => {
+        this.$$<GroupItem>('ul.groups > li > cs-group-item').forEach(groupEle => {
             groupEle.addEventListener('click', () => {
-                drawPointService.activeGroup = groupEle.innerText;
+                groupService.activeGroup = groupService.getGroup(groupEle.name) as TGroupData;
             });
         });
     }

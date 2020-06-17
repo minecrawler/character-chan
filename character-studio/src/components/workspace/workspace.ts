@@ -2,7 +2,7 @@ import {SlimFit} from 'slim-fit';
 import * as template from './workspace.pug';
 import * as css from './workspace.scss';
 import * as wasm from "character-chan";
-import {drawPointService, templateService} from "../../app/app";
+import {drawPointService, groupService, templateService} from "../../app/app";
 import {TPoint, TPointCoords} from "../../app/draw-point-service.spec";
 import {TTemplateInfo} from "../../app/template-service";
 
@@ -15,10 +15,15 @@ export class Workspace extends SlimFit {
         super(false);
         this.addEventListener('error', console.error);
 
-        drawPointService.registerChangeListener(groups => {
+        const changeHandler = () => {
             this.drawCharacter();
             this.drawPoints();
-        });
+        };
+
+        drawPointService.addListener4NewPoint(changeHandler);
+        drawPointService.addListener4ChangePoint(changeHandler);
+        groupService.addListener4NewGroup(changeHandler);
+        groupService.addListener4ChangeActive(changeHandler);
 
         templateService.registerChangeListener(info => {
             this.updateTemplate(info);
@@ -92,10 +97,11 @@ export class Workspace extends SlimFit {
         if (!canvasEle) throw new Error('Internal canvas element missing!');
 
         this.ctx.clearRect(0, 0, canvasEle.width, canvasEle.height);
-        for (const group of drawPointService.getGroups()) {
-            if (group.points.length < 2) continue;
+        for (const group of groupService.getGroups()) {
+            const points = Array.from(drawPointService.getPoints(group.name));
+            if (points.length < 2) continue;
 
-            const linePoints = wasm.test(group.points.toArray().map(p => p.coords));
+            const linePoints = wasm.test(points.map(p => p.coords));
 
             this.ctx.beginPath();
             this.ctx.moveTo(linePoints[0].x, linePoints[0].y);
@@ -118,11 +124,10 @@ export class Workspace extends SlimFit {
         const canvasEle = this.ctx.canvas;
         if (!canvasEle) throw new Error('Internal canvas element missing!');
 
-        const group = drawPointService.getGroup(drawPointService.activeGroup);
-        if (!group) throw new Error('Active group does not exist');
+        const group = groupService.activeGroup;
 
         if (!points) {
-            points = group.points.toArray();
+            points = Array.from(drawPointService.getPoints(group.name));
         }
 
         this.clearPoints();
