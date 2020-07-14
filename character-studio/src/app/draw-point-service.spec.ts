@@ -11,6 +11,8 @@ export interface IDrawPointService {
 
     addListener4NewPoint(handler: TPointListener1): void
 
+    addListener4RemovePoint(handler: TPointListener1): void
+
     /**
      * Add a point
      * @param coords

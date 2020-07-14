@@ -1,7 +1,7 @@
 import {IDrawPointService, TPoint, TPointCoords, TPointListener1, TPointListener2} from "./draw-point-service.spec";
 import {uuid} from "./util";
 import LinkedList from "ts-linked-list";
-import {groupService} from "./app";
+import {groupService, historyService} from "./app";
 
 export * from './draw-point-service.spec';
 
@@ -10,6 +10,7 @@ export class DrawPointService implements IDrawPointService {
     protected groupPoints: Map<string, LinkedList<string>> = new Map();
     protected listeners4ChangePoint: Set<TPointListener1> = new Set();
     protected listeners4NewPoint: Set<TPointListener1> = new Set();
+    protected listeners4RemovePoint: Set<TPointListener1> = new Set();
     protected points: Map<string, TPoint> = new Map();
 
     addListener4ChangePoint(handler: TPointListener1) {
@@ -20,26 +21,48 @@ export class DrawPointService implements IDrawPointService {
         this.listeners4NewPoint.add(handler);
     }
 
+    addListener4RemovePoint(handler: TPointListener1) {
+        this.listeners4RemovePoint.add(handler);
+    }
+
     addPoint(coords: TPointCoords): TPoint {
+        const activeGroupName = groupService.activeGroup.name;
         const point: TPoint = {
             coords: Array.from(coords) as TPointCoords,
             id: uuid(),
         };
 
-        this.points.set(point.id, point);
+        const doer = () => {
+            this.points.set(point.id, point);
 
-        {
-            let groupPoints = this.groupPoints.get(groupService.activeGroup.name);
+            {
+                let groupPoints = this.groupPoints.get(activeGroupName);
 
-            if (!groupPoints) {
-                groupPoints = new LinkedList();
-                this.groupPoints.set(groupService.activeGroup.name, groupPoints);
+                if (!groupPoints) {
+                    groupPoints = new LinkedList();
+                    this.groupPoints.set(activeGroupName, groupPoints);
+                }
+
+                groupPoints.append(point.id);
             }
 
-            groupPoints.append(point.id);
+            this.updateListeners4NewPoint(point);
         }
 
-        this.updateListeners4NewPoint(point);
+        const undoer = () => {
+            const pointGroup = this.groupPoints.get(activeGroupName);
+            const pointGroupIndex = pointGroup?.findIndex(pointId => pointId == point.id) ?? -1;
+
+            this.points.delete(point.id);
+            pointGroup?.removeAt(pointGroupIndex);
+
+            this.updateListeners4RemovePoint(point);
+        }
+
+        historyService.setNextStep(doer, undoer);
+        // todo: error handler
+        historyService.step();
+
         return point;
     }
 
@@ -58,15 +81,21 @@ export class DrawPointService implements IDrawPointService {
         }
     }
 
+    protected updateListeners4ChangePoint(newPoint: TPoint) {
+        for (const listener of this.listeners4ChangePoint) {
+            listener(Object.assign({}, newPoint));
+        }
+    }
+
     protected updateListeners4NewPoint(newPoint: TPoint) {
         for (const listener of this.listeners4NewPoint) {
             listener(Object.assign({}, newPoint));
         }
     }
 
-    protected updateListeners4ChangePoint(newPoint: TPoint) {
-        for (const listener of this.listeners4ChangePoint) {
-            listener(Object.assign({}, newPoint));
+    protected updateListeners4RemovePoint(removedPoint: TPoint) {
+        for (const listener of this.listeners4RemovePoint) {
+            listener(Object.assign({}, removedPoint));
         }
     }
 

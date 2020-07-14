@@ -3,7 +3,7 @@ import * as template from './workspace.pug';
 import * as css from './workspace.scss';
 import * as wasm from "character-chan";
 import {drawPointService, groupService, templateService} from "../../app/app";
-import {TPoint, TPointCoords} from "../../app/draw-point-service.spec";
+import {TPoint} from "../../app/draw-point-service.spec";
 import {TTemplateInfo} from "../../app/template-service";
 
 export class Workspace extends SlimFit {
@@ -13,7 +13,6 @@ export class Workspace extends SlimFit {
 
     constructor() {
         super(false);
-        this.addEventListener('error', console.error);
 
         const changeHandler = () => {
             this.drawCharacter();
@@ -22,6 +21,7 @@ export class Workspace extends SlimFit {
 
         drawPointService.addListener4NewPoint(changeHandler);
         drawPointService.addListener4ChangePoint(changeHandler);
+        drawPointService.addListener4RemovePoint(changeHandler);
         groupService.addListener4NewGroup(changeHandler);
         groupService.addListener4ChangeActive(changeHandler);
 

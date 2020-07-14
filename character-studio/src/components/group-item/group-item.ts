@@ -8,7 +8,6 @@ export class GroupItem extends SlimFit {
 
     constructor() {
         super();
-        this.addEventListener('error', console.error);
 
         groupService.addListener4ChangeActive((oldGroup, newGroup) => {
             const name = this.name;

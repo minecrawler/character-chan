@@ -13,7 +13,6 @@ export class GroupMenu extends SlimFit {
 
     constructor() {
         super();
-        this.addEventListener('error', console.error);
 
         groupService.addListener4NewGroup(group => {
             const groupListEle = this.$('.groups');
@@ -40,7 +39,7 @@ export class GroupMenu extends SlimFit {
         this.$<HTMLButtonElement>('button#add')?.addEventListener('click', () => {
             const name = 'default_' + groupService.groupCount;
             const newGroup: TGroupData = {
-                color: new TinyColor('red').spin(groupService.groupCount * 75).toHexString(),
+                color: new TinyColor('red').spin(groupService.groupCount * 66.666).toHexString(),
                 name,
             };
 
