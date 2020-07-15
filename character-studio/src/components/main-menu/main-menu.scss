@@ -1,8 +1,21 @@
 @use '../../style/global/colors';
 
 #body {
+  align-content: center;
+  align-items: center;
   background-color: colors.$menu-background;
+  box-sizing: border-box;
   color: colors.$menu-font;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
   height: 100%;
+  justify-content: flex-start;
+  justify-items: flex-start;
+  padding: 0 1ch;
   width: 100%;
+
+  > * {
+    margin: 0 1ch;
+  }
 }

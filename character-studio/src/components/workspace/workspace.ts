@@ -2,7 +2,7 @@ import {SlimFit} from 'slim-fit';
 import * as template from './workspace.pug';
 import * as css from './workspace.scss';
 import * as wasm from "character-chan";
-import {drawPointService, groupService, templateService} from "../../app/app";
+import {drawPointService, groupService, historyService, templateService} from "../../app/app";
 import {TPoint} from "../../app/draw-point-service.spec";
 import {TTemplateInfo} from "../../app/template-service";
 
@@ -10,6 +10,7 @@ export class Workspace extends SlimFit {
     static get observedAttributes(): string[] { return []; }
 
     protected ctx?: CanvasRenderingContext2D;
+    private dragStartCoords: [number, number] = [0,0];
 
     constructor() {
         super(false);
@@ -33,7 +34,7 @@ export class Workspace extends SlimFit {
     protected async render(): Promise<void> {
         this.draw(template(), css);
 
-        {
+        {// new point
             const canvasEle = this.$<HTMLCanvasElement>('canvas');
             if (!canvasEle) throw new Error('Internal canvas element missing!');
 
@@ -49,28 +50,45 @@ export class Workspace extends SlimFit {
             });
         }
 
-        {
+        {// drag n drop
             const bodyEle = this.$('#body');
             if (!bodyEle) throw new Error('Internal body element missing!');
 
-            const updateAll = (eve: any) => {
+            const updateAll = (eve: any, isDrop: boolean = false) => {
                 if (!eve.dataTransfer) return false;
 
                 eve.preventDefault();
 
                 const boundingRect = bodyEle.getBoundingClientRect();
-                const point: TPoint = JSON.parse(eve.dataTransfer.getData("text/plain"));
+                const originalPoint: TPoint = JSON.parse(eve.dataTransfer.getData("text/plain"));
+                const point: TPoint = Object.assign({}, originalPoint);
 
                 point.coords = [
                     (eve as DragEvent).clientX - boundingRect.x,
                     (eve as DragEvent).clientY - boundingRect.y,
                 ];
 
-                drawPointService.updatePoint(point);
+                if (isDrop) {
+                    // add big step
+                    drawPointService.updatePoint(point);
+
+                    const doer = () => drawPointService.updatePoint(point);
+                    const undoer = () => {
+                        drawPointService.updatePoint(originalPoint);
+                        historyService.removeCurrentStep();
+                    }
+
+                    historyService.modifyCurrentStep(undefined, undoer);
+                }
+                else {
+                    drawPointService.updatePoint(point);
+                    // remove update step, because we don't want the little moves in the history
+                    historyService.removeCurrentStep();
+                }
             };
 
             bodyEle.addEventListener('dragover', updateAll);
-            bodyEle.addEventListener('drop', updateAll);
+            bodyEle.addEventListener('drop', eve => updateAll(eve, true));
         }
 
         this.update();

@@ -103,8 +103,17 @@ export class DrawPointService implements IDrawPointService {
         const p = this.points.get(point.id);
         if (!p) throw new Error('Point not found: ' + point.id);
 
-        p.coords = Array.from(point.coords) as TPointCoords;
+        const oldPoint = Object.assign({}, p);
+        const newPoint = Object.assign({}, p);
 
-        this.updateListeners4ChangePoint(p);
+        newPoint.coords = Array.from(point.coords) as TPointCoords;
+        historyService.setNextStep(() => {
+            p.coords = newPoint.coords;
+            this.updateListeners4ChangePoint(p);
+        }, () => {
+            p.coords = oldPoint.coords;
+            this.updateListeners4ChangePoint(p);
+        });
+        historyService.step();
     }
 }

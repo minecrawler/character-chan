@@ -4,13 +4,7 @@ import * as css from './main-menu.scss';
 import {historyService} from "../../app/app";
 
 export class MainMenu extends SlimFit {
-    private initialized = false;
-
-    private initialize() {
-        if (this.initialized) return;
-
-        this.initialized = true;
-
+    private updateListeners() {
         {// History buttons
             const backBtnEle = this.$<HTMLButtonElement>('#backward');
             if (!backBtnEle) throw new Error('Missing internal button element!');
@@ -18,16 +12,19 @@ export class MainMenu extends SlimFit {
             const forwardBtnEle = this.$<HTMLButtonElement>('#forward');
             if (!forwardBtnEle) throw new Error('Missing internal button element!');
 
-            historyService.addListener4Step(() => {
-                backBtnEle.disabled = historyService.index - 1 <= 0;
+            const update = () => {
+                backBtnEle.disabled = historyService.index < 0;
                 forwardBtnEle.disabled = historyService.index + 1 >= historyService.length;
-            });
+            };
+
+            historyService.addListener4Back(update, 'MainMenu_History');
+            historyService.addListener4Step(update, 'MainMenu_History');
         }
     }
 
     protected render(): void {
         this.draw(template(), css);
-        this.initialize();
+        this.updateListeners();
 
         {// History buttons
             const backBtnEle = this.$<HTMLButtonElement>('#backward');
@@ -37,7 +34,7 @@ export class MainMenu extends SlimFit {
             if (!forwardBtnEle) throw new Error('Missing internal button element!');
 
             backBtnEle.addEventListener('click', () => {
-                backBtnEle.disabled = historyService.index - 1 <= 0;
+                backBtnEle.disabled = historyService.index <= 0;
                 forwardBtnEle.disabled = false;
                 historyService.back();
             });
