@@ -1,9 +1,9 @@
+cs-group-item {
+  display: block;
+}
+
 .groups {
   > li {
-    cursor: pointer;
-  }
-
-  > .active {
-    font-weight: bold;
+    margin-bottom: 1em;
   }
 }

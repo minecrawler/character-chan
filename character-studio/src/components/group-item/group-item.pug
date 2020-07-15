@@ -1,0 +1,16 @@
+mixin title(name, color)
+    #name(style={color: color})&attributes(attributes)=name
+
+#body
+    if active
+        +title(name, color)(class="active")
+    else
+        +title(name, color)
+    label
+        | Tension
+        br
+        input#tension(type="number" step="0.1" value=tension)
+    label
+        | Segment Count
+        br
+        input#segment-count(type="number" value=segmentCount min=1)

@@ -1,0 +1,13 @@
+label {
+  display: block;
+}
+
+#name {
+  cursor: pointer;
+  user-select: none;
+  width: max-content;
+
+  &.active {
+    font-weight: bold;
+  }
+}

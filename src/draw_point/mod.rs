@@ -9,10 +9,14 @@ pub struct Point2 {
     pub y: f64,
 }
 
-pub fn smooth_lines_through(src_points: Vec<Point2>) -> Vec<Point2> {
+pub fn smooth_lines_through(
+    src_points: Vec<Point2>,
+    segment_count: u32,
+    tension: f64,
+) -> Vec<Point2> {
     let opts = SplineOptsBuilder::new()
-        .num_of_segments(16)
-        .tension(0.5)
+        .num_of_segments(segment_count)
+        .tension(tension)
         .take();
 
     let points: Vec<(f64, f64)> = src_points.iter().map(|point| (point.x, point.y)).collect();

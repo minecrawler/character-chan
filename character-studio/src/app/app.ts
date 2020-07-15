@@ -8,3 +8,5 @@ export const drawPointService: IDrawPointService = new DrawPointService();
 export const groupService: IGroupService = new GroupService();
 export const historyService: IHistoryService = new HistoryService();
 export const templateService: ITemplateService = new TemplateService();
+
+window.addEventListener('error', console.error);

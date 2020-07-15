@@ -8,13 +8,10 @@ export class GroupService implements IGroupService {
     protected groups: Map<string, TGroupData> = new Map();
     protected listeners4ChangeActive: Set<TGroupListenerON> = new Set();
     protected listeners4NewGroup: Set<TGroupListener1> = new Set();
+    protected listeners4Update: Set<TGroupListener1> = new Set();
 
     constructor() {
-        const defaultGroup: TGroupData = {
-            active: true,
-            color: '#FF0000',
-            name: 'default',
-        };
+        const defaultGroup = this.newGroup('default');
 
         this.groups.set('default', defaultGroup);
         this._activeGroup = defaultGroup;
@@ -62,6 +59,10 @@ export class GroupService implements IGroupService {
         this.listeners4NewGroup.add(handler);
     }
 
+    addListener4Update(handler: TGroupListener1) {
+        this.listeners4Update.add(handler);
+    }
+
     getGroup(name: string): TGroupData | undefined {
         return Object.assign({}, this.groups.get(name));
     }
@@ -76,18 +77,40 @@ export class GroupService implements IGroupService {
         return this.groups.keys();
     }
 
+    newGroup(name: string): TGroupData {
+        return {
+            active: true,
+            color: '#FF0000',
+            name,
+            segmentCount: 16,
+            tension: .5,
+        };
+    }
+
+    updateGroup(group: TGroupData) {
+        if (!this.groups.has(group.name)) throw new Error(`Group "${group.name}" does not exist!`);
+        this.groups.set(group.name, Object.assign({}, group));
+        this.updateListeners4Update(group);
+    }
+
     protected updateListeners4ChangeActive(oldActive: TGroupData, newActive: TGroupData) {
         for (const listener of this.listeners4ChangeActive) {
             listener(
-                Object.assign({}, oldActive),
-                Object.assign({}, newActive)
+                Object.assign({}, Object.assign({}, oldActive)),
+                Object.assign({}, Object.assign({}, newActive))
             );
         }
     }
 
     protected updateListeners4NewGroup(group: TGroupData) {
         for (const listener of this.listeners4NewGroup) {
-            listener(Object.assign({}, group));
+            listener(Object.assign({}, Object.assign({}, group)));
+        }
+    }
+
+    protected updateListeners4Update(group: TGroupData) {
+        for (const listener of this.listeners4Update) {
+            listener(Object.assign({}, Object.assign({}, group)));
         }
     }
 }

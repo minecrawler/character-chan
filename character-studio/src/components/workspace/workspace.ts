@@ -25,6 +25,7 @@ export class Workspace extends SlimFit {
         drawPointService.addListener4RemovePoint(changeHandler);
         groupService.addListener4NewGroup(changeHandler);
         groupService.addListener4ChangeActive(changeHandler);
+        groupService.addListener4Update(changeHandler);
 
         templateService.registerChangeListener(info => {
             this.updateTemplate(info);
@@ -119,7 +120,7 @@ export class Workspace extends SlimFit {
             const points = Array.from(drawPointService.getPoints(group.name));
             if (points.length < 2) continue;
 
-            const linePoints = wasm.test(points.map(p => p.coords));
+            const linePoints = wasm.test(points.map(p => p.coords), group.segmentCount, group.tension);
 
             this.ctx.beginPath();
             this.ctx.moveTo(linePoints[0].x, linePoints[0].y);

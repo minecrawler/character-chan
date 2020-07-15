@@ -1,4 +1,4 @@
-import {IDrawPointService, TPoint, TPointCoords, TPointListener1, TPointListener2} from "./draw-point-service.spec";
+import {IDrawPointService, TPoint, TPointCoords, TPointListener1} from "./draw-point-service.spec";
 import {uuid} from "./util";
 import LinkedList from "ts-linked-list";
 import {groupService, historyService} from "./app";

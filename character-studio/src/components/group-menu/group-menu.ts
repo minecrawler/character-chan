@@ -25,7 +25,7 @@ export class GroupMenu extends SlimFit {
             groupListEle.appendChild(liEle);
             liEle.appendChild(groupItemEle);
 
-            groupItemEle.addEventListener('click', () => {
+            groupItemEle.addEventListener('activate', () => {
                 groupService.activeGroup = groupService.getGroup(group.name) as TGroupData;
             });
         });
@@ -38,17 +38,15 @@ export class GroupMenu extends SlimFit {
 
         this.$<HTMLButtonElement>('button#add')?.addEventListener('click', () => {
             const name = 'default_' + groupService.groupCount;
-            const newGroup: TGroupData = {
-                color: new TinyColor('red').spin(groupService.groupCount * 66.666).toHexString(),
-                name,
-            };
+            const newGroup: TGroupData = groupService.newGroup(name);
 
+            newGroup.color = new TinyColor('red').spin(groupService.groupCount * 66.666).toHexString();
             groupService.addGroup(newGroup);
             groupService.activeGroup = newGroup;
         });
 
         this.$$<GroupItem>('ul.groups > li > cs-group-item').forEach(groupEle => {
-            groupEle.addEventListener('click', () => {
+            groupEle.addEventListener('activate', () => {
                 groupService.activeGroup = groupService.getGroup(groupEle.name) as TGroupData;
             });
         });

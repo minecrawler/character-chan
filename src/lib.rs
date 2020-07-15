@@ -3,7 +3,7 @@ mod draw_point;
 mod utils;
 
 use draw_point::{smooth_lines_through, Point2};
-use js_sys::Array;
+use js_sys::{Array, Number};
 //use template::spec::CharacterBase;
 use wasm_bindgen::prelude::*;
 
@@ -14,7 +14,7 @@ use wasm_bindgen::prelude::*;
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 #[wasm_bindgen]
-pub fn test(src_points: Array) -> Array {
+pub fn test(src_points: Array, segment_count: Number, tension: Number) -> Array {
     let mut points: Vec<Point2> = vec![];
 
     for i in 0..src_points.length() {
@@ -26,7 +26,7 @@ pub fn test(src_points: Array) -> Array {
         );
     }
 
-    smooth_lines_through(points)
+    smooth_lines_through(points, f64::from(segment_count) as u32, f64::from(tension))
         .into_iter()
         .map(JsValue::from)
         .collect()
