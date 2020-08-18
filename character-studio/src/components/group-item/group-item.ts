@@ -1,5 +1,5 @@
 import { SlimFit } from 'slim-fit';
-import {groupService} from "../../app/app";
+import {drawPointService, groupService} from "../../app/app";
 import * as template from './group-item.pug';
 import * as css from './group-item.scss';
 
@@ -8,14 +8,22 @@ export class GroupItem extends SlimFit {
     constructor() {
         super();
 
+        const update = () => {
+            this.dirty = true;
+            this.tryRender();
+        };
+
         groupService.addListener4ChangeActive((oldGroup, newGroup) => {
             const name = this.name;
 
             if (oldGroup.name == name || newGroup.name == name) {
-                this.dirty = true;
-                this.tryRender();
+                update();
             }
         });
+
+        drawPointService.addListener4NewPoint(update);
+        drawPointService.addListener4ChangePoint(update);
+        drawPointService.addListener4RemovePoint(update);
     }
 
     public get active(): boolean {
@@ -44,13 +52,9 @@ export class GroupItem extends SlimFit {
         const group = groupService.getGroup(this.name);
         if (!group) throw new Error('Could not find group!');
 
-        this.draw(template({
-            active: group.active,
-            color: group.color,
-            name: group.name,
-            segmentCount: group.segmentCount,
-            tension: group.tension,
-        }), css);
+        this.draw(template(Object.assign({
+            points: Array.from(drawPointService.getPoints(group.name)).map(p => ({x: p.coords[0], y: p.coords[1]})),
+        }, group)), css);
 
         {// Activate
             const nameEle = this.$<HTMLDivElement>('#name');

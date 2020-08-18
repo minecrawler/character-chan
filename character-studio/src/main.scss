@@ -21,7 +21,7 @@ cs-main-menu {
     "menu menu"
     "toolbar workspace";
   grid-template-columns: [left] dimensions.$toolbar-width [h-separator] auto [right];
-  grid-template-rows: [top] dimensions.$menu-height [v-separator] auto [bottom];
+  grid-template-rows: [top] dimensions.$menu-height [v-separator] calc(100vh - #{dimensions.$menu-height}) [bottom];
   height: 100%;
   width: 100%;
 }

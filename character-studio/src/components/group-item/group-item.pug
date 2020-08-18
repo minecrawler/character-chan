@@ -14,3 +14,9 @@ mixin title(name, color)
         | Segment Count
         br
         input#segment-count(type="number" value=segmentCount min=1)
+    #points
+        | Points
+        ul
+            each point in points
+                li
+                    cs-point-item(x=point.x y=point.y)
