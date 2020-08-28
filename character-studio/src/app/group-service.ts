@@ -1,4 +1,5 @@
-import {IGroupService, TGroupData, TGroupListener1, TGroupListenerON} from "./group-service.spec";
+import {IGroupService, TGroupData} from "./group-service.spec";
+import {EEventTypes, eventService} from "./app";
 
 
 export * from './group-service.spec';
@@ -6,9 +7,6 @@ export * from './group-service.spec';
 export class GroupService implements IGroupService {
     protected _activeGroup: TGroupData;
     protected groups: Map<string, TGroupData> = new Map();
-    protected listeners4ChangeActive: Set<TGroupListenerON> = new Set();
-    protected listeners4NewGroup: Set<TGroupListener1> = new Set();
-    protected listeners4Update: Set<TGroupListener1> = new Set();
 
     constructor() {
         const defaultGroup = this.newGroup('default');
@@ -51,18 +49,6 @@ export class GroupService implements IGroupService {
         this.updateListeners4NewGroup(group);
     }
 
-    addListener4ChangeActive(handler: TGroupListenerON) {
-        this.listeners4ChangeActive.add(handler);
-    }
-
-    addListener4NewGroup(handler: TGroupListener1) {
-        this.listeners4NewGroup.add(handler);
-    }
-
-    addListener4Update(handler: TGroupListener1) {
-        this.listeners4Update.add(handler);
-    }
-
     getGroup(name: string): TGroupData | undefined {
         return Object.assign({}, this.groups.get(name));
     }
@@ -94,23 +80,17 @@ export class GroupService implements IGroupService {
     }
 
     protected updateListeners4ChangeActive(oldActive: TGroupData, newActive: TGroupData) {
-        for (const listener of this.listeners4ChangeActive) {
-            listener(
-                Object.assign({}, Object.assign({}, oldActive)),
-                Object.assign({}, Object.assign({}, newActive))
-            );
-        }
+        eventService.dispatch(EEventTypes.GroupChangeActive, {
+            old: Object.assign({}, Object.assign({}, oldActive)),
+            new: Object.assign({}, Object.assign({}, newActive)),
+        });
     }
 
     protected updateListeners4NewGroup(group: TGroupData) {
-        for (const listener of this.listeners4NewGroup) {
-            listener(Object.assign({}, Object.assign({}, group)));
-        }
+        eventService.dispatch(EEventTypes.GroupNewGroup, Object.assign({}, Object.assign({}, group)));
     }
 
     protected updateListeners4Update(group: TGroupData) {
-        for (const listener of this.listeners4Update) {
-            listener(Object.assign({}, Object.assign({}, group)));
-        }
+        eventService.dispatch(EEventTypes.GroupUpdate, Object.assign({}, Object.assign({}, group)));
     }
 }

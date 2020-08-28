@@ -1,29 +1,15 @@
-import {IDrawPointService, TPoint, TPointCoords, TPointListener1} from "./draw-point-service.spec";
+import {IDrawPointService, TPoint, TPointCoords} from "./draw-point-service.spec";
 import {uuid} from "./util";
 import LinkedList from "ts-linked-list";
-import {groupService, historyService} from "./app";
+import {eventService, groupService, historyService} from "./app";
+import {EEventTypes} from "./event-types";
 
 export * from './draw-point-service.spec';
 
 
 export class DrawPointService implements IDrawPointService {
     protected groupPoints: Map<string, LinkedList<string>> = new Map();
-    protected listeners4ChangePoint: Set<TPointListener1> = new Set();
-    protected listeners4NewPoint: Set<TPointListener1> = new Set();
-    protected listeners4RemovePoint: Set<TPointListener1> = new Set();
     protected points: Map<string, TPoint> = new Map();
-
-    addListener4ChangePoint(handler: TPointListener1) {
-        this.listeners4ChangePoint.add(handler);
-    }
-
-    addListener4NewPoint(handler: TPointListener1) {
-        this.listeners4NewPoint.add(handler);
-    }
-
-    addListener4RemovePoint(handler: TPointListener1) {
-        this.listeners4RemovePoint.add(handler);
-    }
 
     addPoint(coords: TPointCoords): TPoint {
         const activeGroupName = groupService.activeGroup.name;
@@ -81,22 +67,16 @@ export class DrawPointService implements IDrawPointService {
         }
     }
 
-    protected updateListeners4ChangePoint(newPoint: TPoint) {
-        for (const listener of this.listeners4ChangePoint) {
-            listener(Object.assign({}, newPoint));
-        }
+    protected updateListeners4ChangePoint(point: TPoint) {
+        eventService.dispatch(EEventTypes.DPChangePoint, Object.assign({}, Object.assign({}, point)));
     }
 
-    protected updateListeners4NewPoint(newPoint: TPoint) {
-        for (const listener of this.listeners4NewPoint) {
-            listener(Object.assign({}, newPoint));
-        }
+    protected updateListeners4NewPoint(point: TPoint) {
+        eventService.dispatch(EEventTypes.DPNewPoint, Object.assign({}, Object.assign({}, point)));
     }
 
-    protected updateListeners4RemovePoint(removedPoint: TPoint) {
-        for (const listener of this.listeners4RemovePoint) {
-            listener(Object.assign({}, removedPoint));
-        }
+    protected updateListeners4RemovePoint(point: TPoint) {
+        eventService.dispatch(EEventTypes.DPRemovePoint, Object.assign({}, Object.assign({}, point)));
     }
 
     updatePoint(point: TPoint) {

@@ -6,20 +6,17 @@ export type TGroupData = {
     tension: number
 };
 
-export type TGroupListener1 = (group: TGroupData) => void;
-export type TGroupListenerON = (oldGroup: TGroupData, newGroup: TGroupData) => void;
+export enum EServiceEventTypes {
+    GroupChangeActive,
+    GroupNewGroup,
+    GroupUpdate,
+}
 
 export interface IGroupService {
     activeGroup: TGroupData
     readonly groupCount: number
 
     addGroup(group: TGroupData): void
-
-    addListener4ChangeActive(handler: TGroupListenerON): void
-
-    addListener4NewGroup(handler: TGroupListener1): void
-
-    addListener4Update(handler: TGroupListener1): void
 
     newGroup(name: string): TGroupData
 

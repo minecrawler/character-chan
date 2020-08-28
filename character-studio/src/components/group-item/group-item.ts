@@ -1,5 +1,5 @@
 import { SlimFit } from 'slim-fit';
-import {drawPointService, groupService} from "../../app/app";
+import {EEventTypes, drawPointService, eventService, groupService} from "../../app/app";
 import * as template from './group-item.pug';
 import * as css from './group-item.scss';
 
@@ -13,17 +13,19 @@ export class GroupItem extends SlimFit {
             this.tryRender();
         };
 
-        groupService.addListener4ChangeActive((oldGroup, newGroup) => {
+        eventService.addListener(EEventTypes.GroupChangeActive, data => {
+            if (!data) return;
+
             const name = this.name;
 
-            if (oldGroup.name == name || newGroup.name == name) {
+            if (data.old.name == name || data.new.name == name) {
                 update();
             }
         });
 
-        drawPointService.addListener4NewPoint(update);
-        drawPointService.addListener4ChangePoint(update);
-        drawPointService.addListener4RemovePoint(update);
+        eventService.addListener(EEventTypes.DPNewPoint, update);
+        eventService.addListener(EEventTypes.DPChangePoint, update);
+        eventService.addListener(EEventTypes.DPRemovePoint, update);
     }
 
     public get active(): boolean {

@@ -1,15 +1,11 @@
-import {ITemplateService, TChangeHandler} from "./template-service.spec";
+import {ITemplateService, TTemplateInfo} from "./template-service.spec";
+import {EEventTypes, eventService} from "./app";
 
 export * from './template-service.spec';
 
 export class TemplateService implements ITemplateService {
-    protected changeHandlers: TChangeHandler[] = [];
     protected data?: string;
     protected scaleFactor: number = 1;
-
-    public registerChangeListener(handler: TChangeHandler): void {
-        this.changeHandlers.push(handler);
-    }
 
     public hasData(): boolean {
         return !!this.data;
@@ -26,11 +22,9 @@ export class TemplateService implements ITemplateService {
     }
 
     protected updateHandlers() {
-        for (const handler of this.changeHandlers) {
-            handler({
-                data: this.data,
-                scaleFactor: this.scaleFactor,
-            });
-        }
+        eventService.dispatch(EEventTypes.TemplateChange, {
+            data: this.data,
+            scaleFactor: this.scaleFactor,
+        } as TTemplateInfo);
     }
 }

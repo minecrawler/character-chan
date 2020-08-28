@@ -1,7 +1,7 @@
 import {SlimFit} from 'slim-fit';
 import * as template from './main-menu.pug';
 import * as css from './main-menu.scss';
-import {historyService} from "../../app/app";
+import {EEventTypes, eventService, historyService} from "../../app/app";
 
 export class MainMenu extends SlimFit {
     private updateListeners() {
@@ -17,8 +17,8 @@ export class MainMenu extends SlimFit {
                 forwardBtnEle.disabled = historyService.index + 1 >= historyService.length;
             };
 
-            historyService.addListener4Back(update, 'MainMenu_History');
-            historyService.addListener4Step(update, 'MainMenu_History');
+            eventService.addListener(EEventTypes.HistoryBack, update);
+            eventService.addListener(EEventTypes.HistoryStep, update);
         }
     }
 

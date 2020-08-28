@@ -1,7 +1,7 @@
 import {SlimFit} from 'slim-fit';
 import * as template from './group-menu.pug';
 import * as css from './group-menu.scss';
-import {groupService} from "../../app/app";
+import {EEventTypes, eventService, groupService} from "../../app/app";
 import { TinyColor } from '@ctrl/tinycolor';
 import {GroupItem} from "../group-item/group-item";
 import { TGroupData } from '../../app/group-service';
@@ -14,7 +14,9 @@ export class GroupMenu extends SlimFit {
     constructor() {
         super();
 
-        groupService.addListener4NewGroup(group => {
+        eventService.addListener(EEventTypes.GroupNewGroup, group => {
+            if (!group) return;
+
             const groupListEle = this.$('.groups');
             if (!groupListEle) throw new Error('Missing internal group list element!');
 

@@ -1,15 +1,12 @@
 import LinkedList from "ts-linked-list";
 import {IHistoryService, THistoryHandler} from "./history-service.spec";
+import {EEventTypes, eventService} from "./app";
 
 
 export * from './history-service.spec';
 
 export class HistoryService implements IHistoryService {
     protected _index = -1;
-    protected listeners4Back: Set<Function> = new Set();
-    protected listeners4Step: Set<Function> = new Set();
-    protected namedListeners4Back: Map<string, Function> = new Map();
-    protected namedListeners4Step: Map<string, Function> = new Map();
     protected steps: LinkedList<{do: THistoryHandler, undo: THistoryHandler}> = new LinkedList();
 
     get index(): number {
@@ -18,24 +15,6 @@ export class HistoryService implements IHistoryService {
 
     get length(): number {
         return this.steps.length;
-    }
-
-    addListener4Back(handler: Function, name?: string) {
-        if (name) {
-            this.namedListeners4Back.set(name, handler);
-        }
-        else {
-            this.listeners4Back.add(handler);
-        }
-    }
-
-    addListener4Step(handler: Function, name?: string) {
-        if (name) {
-            this.namedListeners4Step.set(name, handler);
-        }
-        else {
-            this.listeners4Step.add(handler);
-        }
     }
 
     async back(): Promise<void> {
@@ -65,18 +44,6 @@ export class HistoryService implements IHistoryService {
         this.steps.removeAt(this._index--);
     }
 
-    removeListener4Back(name: string) {
-        if (!this.namedListeners4Back.delete(name)) {
-            throw new Error(`No named back-listener called "${name}" could be found`);
-        }
-    }
-
-    removeListener4Step(name: string) {
-        if (!this.namedListeners4Step.delete(name)) {
-            throw new Error(`No named step-listener called "${name}" could be found`);
-        }
-    }
-
     setNextStep(doer: THistoryHandler, unDoer: THistoryHandler): void {
         while (this.steps.length - 1 > this._index) {
             this.steps.removeAt(this.steps.length - 1)
@@ -95,22 +62,10 @@ export class HistoryService implements IHistoryService {
     }
 
     protected updateListeners4Back() {
-        for (const listener of this.namedListeners4Back.values()) {
-            listener();
-        }
-
-        for(const listener of this.listeners4Back) {
-            listener();
-        }
+        eventService.dispatch(EEventTypes.HistoryBack);
     }
 
     protected updateListeners4Step() {
-        for (const listener of this.namedListeners4Step.values()) {
-            listener();
-        }
-
-        for(const listener of this.listeners4Step) {
-            listener();
-        }
+        eventService.dispatch(EEventTypes.HistoryStep);
     }
 }

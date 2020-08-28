@@ -2,7 +2,7 @@ import {SlimFit} from 'slim-fit';
 import * as template from './workspace.pug';
 import * as css from './workspace.scss';
 import * as wasm from "character-chan";
-import {drawPointService, groupService, historyService, templateService} from "../../app/app";
+import {EEventTypes, drawPointService, eventService, groupService, historyService} from "../../app/app";
 import {TPoint} from "../../app/draw-point-service.spec";
 import {TTemplateInfo} from "../../app/template-service";
 
@@ -10,7 +10,6 @@ export class Workspace extends SlimFit {
     static get observedAttributes(): string[] { return []; }
 
     protected ctx?: CanvasRenderingContext2D;
-    private dragStartCoords: [number, number] = [0,0];
 
     constructor() {
         super(false);
@@ -20,16 +19,13 @@ export class Workspace extends SlimFit {
             this.drawPoints();
         };
 
-        drawPointService.addListener4NewPoint(changeHandler);
-        drawPointService.addListener4ChangePoint(changeHandler);
-        drawPointService.addListener4RemovePoint(changeHandler);
-        groupService.addListener4NewGroup(changeHandler);
-        groupService.addListener4ChangeActive(changeHandler);
-        groupService.addListener4Update(changeHandler);
-
-        templateService.registerChangeListener(info => {
-            this.updateTemplate(info);
-        });
+        eventService.addListener(EEventTypes.DPNewPoint, changeHandler);
+        eventService.addListener(EEventTypes.DPChangePoint, changeHandler);
+        eventService.addListener(EEventTypes.DPRemovePoint, changeHandler);
+        eventService.addListener(EEventTypes.GroupNewGroup, changeHandler);
+        eventService.addListener(EEventTypes.GroupChangeActive, changeHandler);
+        eventService.addListener(EEventTypes.GroupUpdate, changeHandler);
+        eventService.addListener(EEventTypes.TemplateChange, info => info && this.updateTemplate(info as TTemplateInfo));
     }
 
     protected async render(): Promise<void> {
@@ -169,7 +165,6 @@ export class Workspace extends SlimFit {
             });
         }
     }
-
 
     public resize() {
         const canvasEle = this.ctx?.canvas;
