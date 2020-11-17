@@ -8,6 +8,10 @@
   transform: translateX(-50%) translateY(-50%);
   width: .5rem;
   z-index: 100;
+
+  &.moving {
+    opacity: 50%;
+  }
 }
 
 #body {
@@ -17,7 +21,7 @@
   position: relative;
   width: 100%;
 
-  >canvas {
+  > canvas {
     height: 100%;
     position: absolute;
     width: 100%;

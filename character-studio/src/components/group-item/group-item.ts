@@ -24,7 +24,7 @@ export class GroupItem extends SlimFit {
         });
 
         eventService.addListener(EEventTypes.DPNewPoint, update);
-        eventService.addListener(EEventTypes.DPChangePoint, update);
+        //eventService.addListener(EEventTypes.DPChangePoint, update);
         eventService.addListener(EEventTypes.DPRemovePoint, update);
     }
 
@@ -55,7 +55,7 @@ export class GroupItem extends SlimFit {
         if (!group) throw new Error('Could not find group!');
 
         this.draw(template(Object.assign({
-            points: Array.from(drawPointService.getPoints(group.name)).map(p => ({x: p.coords[0], y: p.coords[1]})),
+            points: Array.from(drawPointService.getPoints(group.name)),
         }, group)), css);
 
         {// Activate

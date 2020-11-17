@@ -78,9 +78,7 @@ export class Workspace extends SlimFit {
                     historyService.modifyCurrentStep(undefined, undoer);
                 }
                 else {
-                    drawPointService.updatePoint(point);
-                    // remove update step, because we don't want the little moves in the history
-                    historyService.removeCurrentStep();
+                    drawPointService.updatePoint(point, false);
                 }
             };
 
@@ -162,6 +160,7 @@ export class Workspace extends SlimFit {
 
                 eve.dataTransfer.setData("text/plain", JSON.stringify(point));
                 eve.dataTransfer.dropEffect = 'move';
+                (eve.target as HTMLDivElement | null)?.classList.add('moving');
             });
         }
     }
