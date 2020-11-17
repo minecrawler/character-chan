@@ -1,6 +1,6 @@
 import LinkedList from "ts-linked-list";
 import {IHistoryService, THistoryHandler} from "./history-service.spec";
-import {EEventTypes, eventService} from "./app";
+import {EEventTypes, TEventService} from "./app";
 
 
 export * from './history-service.spec';
@@ -16,6 +16,10 @@ export class HistoryService implements IHistoryService {
     get length(): number {
         return this.steps.length;
     }
+
+    constructor(
+        protected eventService: TEventService
+    ) {}
 
     async back(): Promise<void> {
         if (this._index < 0) return;
@@ -62,10 +66,10 @@ export class HistoryService implements IHistoryService {
     }
 
     protected updateListeners4Back() {
-        eventService.dispatch(EEventTypes.HistoryBack);
+        this.eventService.dispatch(EEventTypes.HistoryBack, undefined);
     }
 
     protected updateListeners4Step() {
-        eventService.dispatch(EEventTypes.HistoryStep);
+        this.eventService.dispatch(EEventTypes.HistoryStep, undefined);
     }
 }

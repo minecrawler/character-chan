@@ -1,7 +1,7 @@
 import {IDrawPointService, TPoint, TPointCoords} from "./draw-point-service.spec";
 import {uuid} from "./util";
 import LinkedList from "ts-linked-list";
-import {eventService, groupService, historyService} from "./app";
+import {groupService, historyService, TEventService} from "./app";
 import {EEventTypes} from "./event-types";
 
 export * from './draw-point-service.spec';
@@ -10,6 +10,10 @@ export * from './draw-point-service.spec';
 export class DrawPointService implements IDrawPointService {
     protected groupPoints: Map<string, LinkedList<string>> = new Map();
     protected points: Map<string, TPoint> = new Map();
+
+    constructor(
+        protected eventService: TEventService
+    ) {}
 
     addPoint(coords: TPointCoords): TPoint {
         const activeGroupName = groupService.activeGroup.name;
@@ -52,6 +56,10 @@ export class DrawPointService implements IDrawPointService {
         return point;
     }
 
+    getPointById(id: string): TPoint {
+        return Object.assign({}, this.points.get(id));
+    }
+
     *getPoints(group: string): IterableIterator<TPoint> {
         const groupPoints = this.groupPoints.get(group);
         if (!groupPoints) return;
@@ -68,18 +76,18 @@ export class DrawPointService implements IDrawPointService {
     }
 
     protected updateListeners4ChangePoint(point: TPoint) {
-        eventService.dispatch(EEventTypes.DPChangePoint, Object.assign({}, Object.assign({}, point)));
+        this.eventService.dispatch(EEventTypes.DPChangePoint, Object.assign({}, point));
     }
 
     protected updateListeners4NewPoint(point: TPoint) {
-        eventService.dispatch(EEventTypes.DPNewPoint, Object.assign({}, Object.assign({}, point)));
+        this.eventService.dispatch(EEventTypes.DPNewPoint, Object.assign({}, point));
     }
 
     protected updateListeners4RemovePoint(point: TPoint) {
-        eventService.dispatch(EEventTypes.DPRemovePoint, Object.assign({}, Object.assign({}, point)));
+        this.eventService.dispatch(EEventTypes.DPRemovePoint, Object.assign({}, point));
     }
 
-    updatePoint(point: TPoint) {
+    updatePoint(point: TPoint, updateHistory: boolean = true) {
         const p = this.points.get(point.id);
         if (!p) throw new Error('Point not found: ' + point.id);
 
@@ -87,13 +95,20 @@ export class DrawPointService implements IDrawPointService {
         const newPoint = Object.assign({}, p);
 
         newPoint.coords = Array.from(point.coords) as TPointCoords;
-        historyService.setNextStep(() => {
+
+        if (updateHistory) {
+            historyService.setNextStep(() => {
+                p.coords = newPoint.coords;
+                this.updateListeners4ChangePoint(p);
+            }, () => {
+                p.coords = oldPoint.coords;
+                this.updateListeners4ChangePoint(p);
+            });
+            historyService.step();
+        }
+        else {
             p.coords = newPoint.coords;
             this.updateListeners4ChangePoint(p);
-        }, () => {
-            p.coords = oldPoint.coords;
-            this.updateListeners4ChangePoint(p);
-        });
-        historyService.step();
+        }
     }
 }

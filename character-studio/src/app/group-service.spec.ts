@@ -6,12 +6,6 @@ export type TGroupData = {
     tension: number
 };
 
-export enum EServiceEventTypes {
-    GroupChangeActive,
-    GroupNewGroup,
-    GroupUpdate,
-}
-
 export interface IGroupService {
     activeGroup: TGroupData
     readonly groupCount: number

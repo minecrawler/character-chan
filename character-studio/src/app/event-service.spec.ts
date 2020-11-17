@@ -1,14 +1,7 @@
-import {EEventTypes} from "./event-types";
+export type TEventHandler<K> = (data?: K) => Promise<void> | void;
 
-export type TEventData = { [key: string]: any };
-export type TEventHandler = (data?: TEventData) => Promise<void> | void;
-
-export enum EServiceEventTypes {
-    //...
-}
-
-export interface IEventService {
-    addListener(event: EEventTypes, handler: TEventHandler): void
-    dispatch(event: EEventTypes, data?: TEventData): Promise<void>
-    removeListener(event: EEventTypes, handler: TEventHandler): void
+export interface IEventService<DataMap> {
+    addListener<K extends keyof DataMap>(event: K, handler: TEventHandler<DataMap[K]>): void
+    dispatch<K extends keyof DataMap>(event: K, data: DataMap[K]): Promise<void>
+    removeListener<K extends keyof DataMap>(event: K, handler: TEventHandler<DataMap[K]>): void
 }

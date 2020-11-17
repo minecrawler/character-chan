@@ -1,11 +1,15 @@
 import {ITemplateService, TTemplateInfo} from "./template-service.spec";
-import {EEventTypes, eventService} from "./app";
+import {EEventTypes, TEventService} from "./app";
 
 export * from './template-service.spec';
 
 export class TemplateService implements ITemplateService {
     protected data?: string;
     protected scaleFactor: number = 1;
+
+    constructor(
+        protected eventService: TEventService
+    ) {}
 
     public hasData(): boolean {
         return !!this.data;
@@ -22,7 +26,7 @@ export class TemplateService implements ITemplateService {
     }
 
     protected updateHandlers() {
-        eventService.dispatch(EEventTypes.TemplateChange, {
+        this.eventService.dispatch(EEventTypes.TemplateChange, {
             data: this.data,
             scaleFactor: this.scaleFactor,
         } as TTemplateInfo);

@@ -1,10 +1,5 @@
 export type THistoryHandler = () => Promise<void> | void;
 
-export enum EServiceEventTypes {
-    HistoryBack,
-    HistoryStep,
-}
-
 export interface IHistoryService {
     index: number
     length: number

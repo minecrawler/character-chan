@@ -4,14 +4,23 @@ import {GroupService, IGroupService} from "./group-service";
 import {IHistoryService} from "./history-service.spec";
 import {HistoryService} from "./history-service";
 import {EventService, IEventService} from "./event-service";
-import {EEventTypes} from "./event-types";
+import {EEventTypes, IEventDataMap} from "./event-types";
 
 export {EEventTypes};
 
-export const drawPointService: IDrawPointService = new DrawPointService();
-export const eventService: IEventService = new EventService();
-export const groupService: IGroupService = new GroupService();
-export const historyService: IHistoryService = new HistoryService();
-export const templateService: ITemplateService = new TemplateService();
+export type TEventService = IEventService<IEventDataMap>;
 
-window.addEventListener('error', console.error);
+export const eventService: TEventService = new EventService();
+export const drawPointService: IDrawPointService = new DrawPointService(eventService);
+export const groupService: IGroupService = new GroupService(eventService);
+export const historyService: IHistoryService = new HistoryService(eventService);
+export const templateService: ITemplateService = new TemplateService(eventService);
+
+export const isDebug = function () {
+    return localStorage.getItem('debug') === 'true';
+}
+
+
+if (isDebug()) {
+    window.addEventListener('error', console.error);
+}

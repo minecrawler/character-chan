@@ -1,5 +1,5 @@
 import {IGroupService, TGroupData} from "./group-service.spec";
-import {EEventTypes, eventService} from "./app";
+import {EEventTypes, TEventService} from "./app";
 
 
 export * from './group-service.spec';
@@ -8,7 +8,9 @@ export class GroupService implements IGroupService {
     protected _activeGroup: TGroupData;
     protected groups: Map<string, TGroupData> = new Map();
 
-    constructor() {
+    constructor(
+        protected eventService: TEventService
+    ) {
         const defaultGroup = this.newGroup('default');
 
         this.groups.set('default', defaultGroup);
@@ -80,17 +82,17 @@ export class GroupService implements IGroupService {
     }
 
     protected updateListeners4ChangeActive(oldActive: TGroupData, newActive: TGroupData) {
-        eventService.dispatch(EEventTypes.GroupChangeActive, {
+        this.eventService.dispatch(EEventTypes.GroupChangeActive, {
             old: Object.assign({}, Object.assign({}, oldActive)),
             new: Object.assign({}, Object.assign({}, newActive)),
         });
     }
 
     protected updateListeners4NewGroup(group: TGroupData) {
-        eventService.dispatch(EEventTypes.GroupNewGroup, Object.assign({}, Object.assign({}, group)));
+        this.eventService.dispatch(EEventTypes.GroupNewGroup, Object.assign({}, group));
     }
 
     protected updateListeners4Update(group: TGroupData) {
-        eventService.dispatch(EEventTypes.GroupUpdate, Object.assign({}, Object.assign({}, group)));
+        this.eventService.dispatch(EEventTypes.GroupUpdate, Object.assign({}, group));
     }
 }

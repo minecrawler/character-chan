@@ -4,12 +4,6 @@ export type TPoint = {
 };
 export type TPointCoords = [number, number];
 
-export enum EServiceEventTypes {
-    DPChangePoint,
-    DPNewPoint,
-    DPRemovePoint,
-}
-
 export interface IDrawPointService {
     /**
      * Add a point
@@ -17,7 +11,9 @@ export interface IDrawPointService {
      */
     addPoint(coords: TPointCoords): TPoint
 
+    getPointById(id: string): TPoint
+
     getPoints(group: string): IterableIterator<TPoint>
 
-    updatePoint(point: TPoint): void
+    updatePoint(point: TPoint, updateHistory?: boolean): void
 }

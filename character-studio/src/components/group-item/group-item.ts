@@ -1,5 +1,5 @@
-import { SlimFit } from 'slim-fit';
-import {EEventTypes, drawPointService, eventService, groupService} from "../../app/app";
+import {SlimFit} from 'slim-fit';
+import {drawPointService, EEventTypes, eventService, groupService} from "../../app/app";
 import * as template from './group-item.pug';
 import * as css from './group-item.scss';
 

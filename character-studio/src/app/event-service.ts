@@ -1,12 +1,12 @@
-import {IEventService, TEventData, TEventHandler} from "./event-service.spec";
-import {EEventTypes} from "./event-types";
+import {IEventService, TEventHandler} from "./event-service.spec";
 
 export * from './event-service.spec';
 
-export class EventService implements IEventService {
-    private listeners: Map<EEventTypes, Set<TEventHandler>> = new Map();
+export class EventService<DataMap> implements IEventService<DataMap> {
+    // todo: improve typing
+    private listeners: Map<keyof DataMap, Set<TEventHandler<any>>> = new Map();
 
-    addListener(event: EEventTypes, handler: TEventHandler): void {
+    addListener<K extends keyof DataMap>(event: K, handler: TEventHandler<DataMap[K]>): void {
         let handlers = this.listeners.get(event);
 
         if (!handlers) {
@@ -17,14 +17,14 @@ export class EventService implements IEventService {
         handlers.add(handler);
     }
 
-    async dispatch(event: EEventTypes, data: TEventData): Promise<void> {
+    async dispatch<K extends keyof DataMap>(event: K, data: DataMap[K]): Promise<void> {
         const proms: (Promise<void> | void)[] = [];
 
         this.listeners.get(event)?.forEach(handler => proms.push(handler(Object.assign({}, data))));
         await Promise.all(proms);
     }
 
-    removeListener(event: EEventTypes, handler: TEventHandler): void {
+    removeListener<K extends keyof DataMap>(event: K, handler: TEventHandler<DataMap[K]>): void {
         this.listeners.get(event)?.delete(handler);
     }
 }

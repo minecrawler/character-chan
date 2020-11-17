@@ -3,10 +3,6 @@ export type TTemplateInfo = {
     scaleFactor: number,
 };
 
-export enum EServiceEventTypes {
-    TemplateChange,
-}
-
 export interface ITemplateService {
     hasData(): boolean
 
