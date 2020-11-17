@@ -160,7 +160,6 @@ export class Workspace extends SlimFit {
 
                 eve.dataTransfer.setData("text/plain", JSON.stringify(point));
                 eve.dataTransfer.dropEffect = 'move';
-                (eve.target as HTMLDivElement | null)?.classList.add('moving');
             });
         }
     }
